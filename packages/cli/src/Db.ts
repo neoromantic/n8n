@@ -11,7 +11,6 @@ import {
 	createConnection,
 	EntityManager,
 	EntityTarget,
-	getRepository,
 	LoggerOptions,
 	ObjectLiteral,
 	Repository,
@@ -29,6 +28,8 @@ import { entities } from './databases/entities';
 import { postgresMigrations } from './databases/migrations/postgresdb';
 import { mysqlMigrations } from './databases/migrations/mysqldb';
 import { sqliteMigrations } from './databases/migrations/sqlite';
+import { UserRepository } from './databases/repositories/UserRepository';
+import { RoleRepository } from './databases/repositories/RoleRepository';
 
 export let isInitialized = false;
 export const collections = {} as IDatabaseCollections;
@@ -42,7 +43,7 @@ export async function transaction<T>(fn: (entityManager: EntityManager) => Promi
 export function linkRepository<Entity extends ObjectLiteral>(
 	entityClass: EntityTarget<Entity>,
 ): Repository<Entity> {
-	return getRepository(entityClass, connection.name);
+	return connection.getRepository(entityClass);
 }
 
 export async function init(
@@ -195,8 +196,8 @@ export async function init(
 	collections.Webhook = linkRepository(entities.WebhookEntity);
 	collections.Tag = linkRepository(entities.TagEntity);
 
-	collections.Role = linkRepository(entities.Role);
-	collections.User = linkRepository(entities.User);
+	collections.Role = connection.getCustomRepository(RoleRepository);
+	collections.User = connection.getCustomRepository(UserRepository);
 	collections.SharedCredentials = linkRepository(entities.SharedCredentials);
 	collections.SharedWorkflow = linkRepository(entities.SharedWorkflow);
 	collections.Settings = linkRepository(entities.Settings);

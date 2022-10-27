@@ -33,13 +33,12 @@ import { Url } from 'url';
 import type { Request } from 'express';
 import type { InstalledNodes } from './databases/entities/InstalledNodes';
 import type { InstalledPackages } from './databases/entities/InstalledPackages';
-import type { Role } from './databases/entities/Role';
 import type { Settings } from './databases/entities/Settings';
 import type { SharedCredentials } from './databases/entities/SharedCredentials';
 import type { SharedWorkflow } from './databases/entities/SharedWorkflow';
 import type { TagEntity } from './databases/entities/TagEntity';
-import type { User } from './databases/entities/User';
 import type { WorkflowEntity } from './databases/entities/WorkflowEntity';
+import type { IRepositories } from './databases/repositories';
 
 export interface IActivationError {
 	time: number;
@@ -70,20 +69,18 @@ export interface ICredentialsOverwrite {
 	[key: string]: ICredentialDataDecryptedObject;
 }
 
-export interface IDatabaseCollections {
+export type IDatabaseCollections = IRepositories & {
 	Credentials: Repository<ICredentialsDb>;
 	Execution: Repository<IExecutionFlattedDb>;
 	Workflow: Repository<WorkflowEntity>;
 	Webhook: Repository<IWebhookDb>;
 	Tag: Repository<TagEntity>;
-	Role: Repository<Role>;
-	User: Repository<User>;
 	SharedCredentials: Repository<SharedCredentials>;
 	SharedWorkflow: Repository<SharedWorkflow>;
 	Settings: Repository<Settings>;
 	InstalledPackages: Repository<InstalledPackages>;
 	InstalledNodes: Repository<InstalledNodes>;
-}
+};
 
 export interface IWebhookDb {
 	workflowId: number | string;

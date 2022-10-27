@@ -6,7 +6,6 @@ import { LoggerProxy as Logger } from 'n8n-workflow';
 
 import { Db, InternalHooksManager, ResponseHelper } from '../..';
 import * as config from '../../../config';
-import { validateEntity } from '../../GenericHelpers';
 import { AuthenticatedRequest, OwnerRequest } from '../../requests';
 import { issueCookie } from '../auth/jwt';
 import { N8nApp } from '../Interfaces';
@@ -55,9 +54,7 @@ export function ownerNamespace(this: N8nApp): void {
 				);
 			}
 
-			let owner = await Db.collections.User.findOne(userId, {
-				relations: ['globalRole'],
-			});
+			let owner = await Db.collections.User.findOneById(userId);
 
 			if (!owner || (owner.globalRole.scope === 'global' && owner.globalRole.name !== 'owner')) {
 				Logger.debug(
@@ -76,9 +73,7 @@ export function ownerNamespace(this: N8nApp): void {
 				password: await hashPassword(validPassword),
 			});
 
-			await validateEntity(owner);
-
-			owner = await Db.collections.User.save(owner);
+			owner = await Db.collections.User.validateAndUpdate(owner);
 
 			Logger.info('Owner was set up successfully', { userId: req.user.id });
 
