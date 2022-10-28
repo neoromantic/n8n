@@ -55,7 +55,7 @@ export function addRoutes(this: N8nApp, ignoredEndpoints: string[], restEndpoint
 
 		// skip authentication if user management is disabled
 		if (isUserManagementDisabled()) {
-			req.user = await Db.collections.User.findFirst();
+			req.user = await Db.repositories.User.findFirst();
 			return next();
 		}
 
