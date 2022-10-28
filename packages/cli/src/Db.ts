@@ -30,6 +30,7 @@ import { mysqlMigrations } from './databases/migrations/mysqldb';
 import { sqliteMigrations } from './databases/migrations/sqlite';
 import { UserRepository } from './databases/repositories/UserRepository';
 import { RoleRepository } from './databases/repositories/RoleRepository';
+import { SettingsRepository } from './databases/repositories/SettingsRepository';
 
 export let isInitialized = false;
 export const collections = {} as IDatabaseCollections;
@@ -195,14 +196,14 @@ export async function init(
 	// @ts-ignore
 	collections.Webhook = linkRepository(entities.WebhookEntity);
 	collections.Tag = linkRepository(entities.TagEntity);
-
-	collections.Role = connection.getCustomRepository(RoleRepository);
-	collections.User = connection.getCustomRepository(UserRepository);
 	collections.SharedCredentials = linkRepository(entities.SharedCredentials);
 	collections.SharedWorkflow = linkRepository(entities.SharedWorkflow);
-	collections.Settings = linkRepository(entities.Settings);
 	collections.InstalledPackages = linkRepository(entities.InstalledPackages);
 	collections.InstalledNodes = linkRepository(entities.InstalledNodes);
+
+	collections.Role = connection.getCustomRepository(RoleRepository);
+	collections.Settings = connection.getCustomRepository(SettingsRepository);
+	collections.User = connection.getCustomRepository(UserRepository);
 
 	isInitialized = true;
 
