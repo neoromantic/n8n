@@ -153,6 +153,9 @@ import glob from 'fast-glob';
 import { ResponseError } from './ResponseHelper';
 
 import { toHttpNodeParameters } from './CurlConverterHelper';
+import { messageBufferInstance } from './MessageBus/MessageBuffer';
+import { EventMessage } from './MessageBus/EventMessage';
+import { EventMessageEventGroup } from './MessageBus/types/eventMessageTypes';
 
 require('body-parser-xml')(bodyParser);
 
@@ -1657,6 +1660,39 @@ class App {
 					return this.getSettingsForFrontend();
 				},
 			),
+		);
+
+		// ----------------------------------------
+		// MessageBuffer TESTING
+		// ----------------------------------------
+		this.app.post(
+			`/${this.restEndpoint}/messagebuffer/add/msg`,
+			ResponseHelper.send(async (req: express.Request, res: express.Response): Promise<any> => {
+				const json = req.params;
+				const msg = new EventMessage({
+					eventGroup: req.params.eventGroup as EventMessageEventGroup,
+					eventName: req.params.eventName,
+				});
+				return messageBufferInstance.publishEvent(msg);
+			}),
+		);
+		this.app.get(
+			`/${this.restEndpoint}/messagebuffer/get/all`,
+			ResponseHelper.send(async (req: express.Request, res: express.Response): Promise<any> => {
+				return messageBufferInstance.getEvents();
+			}),
+		);
+		this.app.get(
+			`/${this.restEndpoint}/messagebuffer/get/sent`,
+			ResponseHelper.send(async (req: express.Request, res: express.Response): Promise<any> => {
+				return messageBufferInstance.getEventsSent();
+			}),
+		);
+		this.app.get(
+			`/${this.restEndpoint}/messagebuffer/get/unsent`,
+			ResponseHelper.send(async (req: express.Request, res: express.Response): Promise<any> => {
+				return messageBufferInstance.getEventsUnsent();
+			}),
 		);
 
 		// ----------------------------------------
