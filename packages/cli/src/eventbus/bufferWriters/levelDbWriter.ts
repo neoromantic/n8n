@@ -3,8 +3,6 @@ import { Level } from 'level';
 import { DateTime } from 'luxon';
 import { EventMessage } from '../classes/EventMessage';
 import { MessageEventBusWriter } from '../classes/MessageEventBusWriter';
-import { plainToInstance } from 'class-transformer';
-import { jsonParse } from 'n8n-workflow';
 import { UserSettings } from 'n8n-core';
 import path from 'path';
 
@@ -17,7 +15,7 @@ const KEEP_MESSAGE_BUFFER_FOR_SECONDS = 10;
 export class MessageBufferLevelDbWriter implements MessageEventBusWriter {
 	// main db instance = do not write into this directly, but use sentLevel
 	// and unsentLevel instead(exception: atomic batch calls)
-	#db: Level<string, any>;
+	#db: Level<string, string>;
 
 	// db partition holding sent messages
 	#sentLevel;
@@ -28,7 +26,7 @@ export class MessageBufferLevelDbWriter implements MessageEventBusWriter {
 	constructor(dbName = 'eventdb') {
 		const n8nFolder = UserSettings.getUserN8nFolderPath();
 		const dbPath = path.join(n8nFolder, dbName);
-		this.#db = new Level<string, any>(dbPath, { valueEncoding: 'json' });
+		this.#db = new Level<string, string>(dbPath, { valueEncoding: 'json' });
 		this.#sentLevel = this.#db.sublevel('sent', { valueEncoding: 'json' });
 		this.#unsentLevel = this.#db.sublevel('unsent', { valueEncoding: 'json' });
 		setInterval(async () => {
@@ -71,32 +69,23 @@ export class MessageBufferLevelDbWriter implements MessageEventBusWriter {
 					value: msg,
 				},
 			]);
-			// await this.#unsentLevel.del(key);
-			// await this.#sentLevel.put(key, msg);
 		}
 	}
 
 	async getMessages(): Promise<EventMessage[]> {
 		const result = await this.#db.getMany(await this.#db.keys().all());
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return plainToInstance(EventMessage, result);
+		return result.map((e) => EventMessage.fromJSONString(e));
 	}
 
 	async getMessagesSent(): Promise<EventMessage[]> {
 		const result = await this.#sentLevel.getMany(await this.#sentLevel.keys().all());
-		return plainToInstance(EventMessage, result);
+		return result.map((e) => EventMessage.fromJSONString(e));
 	}
 
 	async getMessagesUnsent(): Promise<EventMessage[]> {
-		const result: EventMessage[] = [];
 		const unsentKeys: string[] = await this.#unsentLevel.keys().all();
 		const unsentValues = await this.#unsentLevel.getMany(unsentKeys);
-		for (const v of unsentValues) {
-			// result.push(jsonParse<EventMessage>(v));
-			result.push(EventMessage.fromJSON(v));
-		}
-		// return { keys: unsentKeys, values: unsentValues };
-		return result;
+		return unsentValues.map((e) => EventMessage.fromJSONString(e));
 	}
 
 	async recoverUnsentMessages(): Promise<void> {

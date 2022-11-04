@@ -160,7 +160,8 @@ import { MessageForwarderToLocalBroker } from './eventbus/messageForwarder/Messa
 import { EventMessageNames } from './eventbus/types/eventMessageTypes';
 import { MessageEventSubscriptionReceiver } from './eventbus/eventSubscribersReceivers/MessageEventSubscriptionReceiver';
 import { MessageEventSubscriptionSet } from './eventbus/classes/MessageEventSubscriptionSet';
-import { ConsoleEventSuscriptionReceiver } from './eventbus/eventSubscribersReceivers/ConsoleEventSuscriptionReceiver';
+import { ConsoleEventSubscriptionReceiver } from './eventbus/eventSubscribersReceivers/ConsoleEventSubscriptionReceiver';
+import { FileEventSubscriptionReceiver } from './eventbus/eventSubscribersReceivers/FileEventSubscriptionReceiver';
 
 require('body-parser-xml')(bodyParser);
 
@@ -1686,16 +1687,21 @@ class App {
 				'n8n.ui.clicki',
 			],
 		});
-		const consoleReceiver = new ConsoleEventSuscriptionReceiver();
+		const consoleReceiver = new ConsoleEventSubscriptionReceiver();
+		const fileReceiver = new FileEventSubscriptionReceiver();
 		const localBrokerForwarder = new MessageForwarderToLocalBroker();
 		await localBrokerForwarder.addReceiver(consoleReceiver);
 		localBrokerForwarder.addSubscription(consoleReceiver, [
 			subscriptionSetCore,
 			subscriptionSetCustom,
 		]);
-		const levelDbWriter = new MessageBufferLevelDbWriter();
+		await localBrokerForwarder.addReceiver(fileReceiver);
+		localBrokerForwarder.addSubscription(fileReceiver, [
+			subscriptionSetCore,
+			subscriptionSetCustom,
+		]);
 		await eventBus.initialize({
-			immediateWriters: [levelDbWriter],
+			immediateWriters: [new MessageBufferLevelDbWriter()],
 			forwarders: [localBrokerForwarder],
 		});
 

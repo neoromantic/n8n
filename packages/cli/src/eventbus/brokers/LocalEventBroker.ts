@@ -1,13 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { EventMessage } from '../classes/EventMessage';
-import { MessageEventSubscriptionReceiver } from '../eventSubscribersReceivers/MessageEventSubscriptionReceiver';
+import {
+	EventSubscriberWorker,
+	MessageEventSubscriptionReceiver,
+} from '../eventSubscribersReceivers/MessageEventSubscriptionReceiver';
 import { spawn, Worker } from 'threads';
-// import { EventSubscriberWorker } from '../eventSubscribersReceivers/ConsoleEventSuscriptionReceiverWorker';
-import { EventSubscriberWorker } from '../eventSubscribersReceivers/ConsoleEventSuscriptionReceiver';
 import { MessageEventSubscriptionSet } from '../classes/MessageEventSubscriptionSet';
 import unionBy from 'lodash.unionby';
 import iteratee from 'lodash.iteratee';
@@ -45,7 +41,7 @@ export class LocalEventBroker {
 				}
 				if (match) {
 					console.debug(`LocalEventBroker Msg sent to subscriber ${msg.eventName} - ${msg.id}`);
-					await this.#getReceiverByName(receiverName)?.worker?.receive(msg);
+					await this.#getReceiverByName(receiverName)?.worker?.receive(msg.toJSON());
 					subscriberCountSent++;
 				}
 			}
@@ -118,104 +114,3 @@ export class LocalEventBroker {
 		return;
 	}
 }
-
-// export const localEventBrokerSubscribers: {
-// 	[key: string]: IEventSubscriber;
-// } = {};
-
-// export class LocalEventBroker {
-// 	static #instance: LocalEventBroker;
-
-// 	#thread: ModuleThread<EventBusWorker>;
-
-// 	static getInstance(): LocalEventBroker {
-// 		if (!LocalEventBroker.#instance) {
-// 			LocalEventBroker.#instance = new LocalEventBroker();
-// 		}
-// 		return LocalEventBroker.#instance;
-// 	}
-
-// 	static workerFn = {
-// 		addMessage(msg: EventMessage) {
-// 			setImmediate(async () => {
-// 				if (isWorkerRuntime()) {
-// 					console.log('Worker: sending msg to subscribers');
-// 				} else {
-// 					console.log('MainThread: sending msg to subscribers');
-// 				}
-// 				for (const subscriberName of Object.keys(localEventBrokerSubscribers)) {
-// 					if (localEventBrokerSubscribers[subscriberName].worker) {
-// 						if (
-// 							localEventBrokerSubscribers[subscriberName].eventGroups.includes(
-// 								msg.getEventGroup(),
-// 							) ||
-// 							localEventBrokerSubscribers[subscriberName].eventNames.includes(msg.getEventName())
-// 						) {
-// 							await localEventBrokerSubscribers[subscriberName].worker?.receive(msg);
-// 						}
-// 					}
-// 				}
-// 				await eventBus.confirmMessageSent(EventMessage.getKey(msg));
-// 			});
-// 		},
-// 		async addSubscriber(newSubscriber: IEventSubscriber) {
-// 			if (newSubscriber.name in localEventBrokerSubscribers) {
-// 				const existingSubscriber = localEventBrokerSubscribers[newSubscriber.name];
-// 				if (existingSubscriber.worker) {
-// 					await Thread.terminate(existingSubscriber.worker);
-// 				}
-// 			}
-// 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-// 			newSubscriber.worker = await spawn<EventSubscriberWorker>(
-// 				new Worker(newSubscriber.workerFile),
-// 			);
-// 			localEventBrokerSubscribers[newSubscriber.name] = newSubscriber;
-// 		},
-// 		getSubscribers() {
-// 			return localEventBrokerSubscribers;
-// 		},
-// 		async terminateSubscriberThreads() {
-// 			for (const subscriberName of Object.keys(localEventBrokerSubscribers)) {
-// 				const worker = localEventBrokerSubscribers[subscriberName].worker;
-// 				if (worker) {
-// 					await Thread.terminate(worker);
-// 				}
-// 			}
-// 		},
-// 		async removeSubscriber(name: string) {
-// 			console.log('name in localEventBrokerSubscribers', name in localEventBrokerSubscribers);
-// 			console.log(`localEventBrokerSubscribers[${name}]`, localEventBrokerSubscribers[name]);
-// 			console.log(Object.keys(localEventBrokerSubscribers));
-// 			if (name in localEventBrokerSubscribers) {
-// 				const worker = localEventBrokerSubscribers[name].worker;
-// 				if (worker) {
-// 					await Thread.terminate(worker);
-// 				}
-// 				delete localEventBrokerSubscribers.name;
-// 			}
-// 		},
-// 	};
-
-// 	async runAsThread() {
-// 		if (!this.#thread) {
-// 			this.#thread = await spawn<EventBusWorker>(new Worker('./workers/bus'));
-// 		}
-// 		return this.#thread;
-// 	}
-
-// 	async runInMainThread() {
-// 		return LocalEventBroker.workerFn;
-// 	}
-
-// 	async terminate() {
-// 		if (this.#thread) {
-// 			await Thread.terminate(this.#thread);
-// 		}
-// 	}
-// }
-
-// // export const localEventBrokerInMain = LocalEventBroker.getInstance().runInMainThread();
-// // export const localEventBrokerAsThread = LocalEventBroker.getInstance().runAsThread();
-
-// export const localEventBrokerInstance = LocalEventBroker.getInstance();
-// export type EventBusWorker = typeof LocalEventBroker.workerFn;

@@ -9,7 +9,7 @@ import {
 	EventMessageSeverity,
 } from '../types/eventMessageTypes';
 
-export interface EventMessageUnserialized {
+export class EventMessageDeserialized {
 	readonly id: string;
 
 	readonly ts: string;
@@ -23,7 +23,24 @@ export interface EventMessageUnserialized {
 	payload: unknown;
 }
 
-export class EventMessage<T = any> {
+export const isEventMessage = (candidate: unknown): candidate is EventMessage => {
+	const o = candidate as EventMessage;
+	return (
+		o.eventName !== undefined &&
+		o.id !== undefined &&
+		o.ts !== undefined &&
+		o.getEventGroup !== undefined
+	);
+};
+
+export const isEventMessageDeserialized = (
+	candidate: unknown,
+): candidate is EventMessageDeserialized => {
+	const o = candidate as EventMessageDeserialized;
+	return o.eventName !== undefined && o.id !== undefined && o.ts !== undefined;
+};
+
+export class EventMessage<T = unknown> {
 	readonly id: string;
 
 	readonly ts: DateTime;
@@ -71,11 +88,22 @@ export class EventMessage<T = any> {
 	}
 
 	toString() {
-		// TODO: filter payload for sensitive info here?
-		return JSON.stringify(this);
+		return JSON.stringify(this.toJSON());
 	}
 
-	static fromJSON(s: string): EventMessage {
+	toJSON() {
+		// TODO: filter payload for sensitive info here?
+		return {
+			id: this.id,
+			ts: this.ts.toISO(),
+			eventName: this.eventName,
+			level: this.level,
+			severity: this.severity,
+			payload: JSON.stringify(this.payload),
+		};
+	}
+
+	static fromJSONString(s: string): EventMessage {
 		const json = jsonParse<EventMessage>(s);
 		return new EventMessage(json);
 	}
@@ -84,7 +112,7 @@ export class EventMessage<T = any> {
 	 * Combines the timestamp as milliseconds with the id to generate a unique key that can be ordered by time, alphabetically
 	 * @returns database key
 	 */
-	getKey() {
+	getKey(): string {
 		return EventMessage.getKey(this);
 	}
 
@@ -93,7 +121,7 @@ export class EventMessage<T = any> {
 	 * Combines the timestamp as milliseconds with the id to generate a unique key that can be ordered by time, alphabetically
 	 * @returns database key
 	 */
-	static getKey(msg: EventMessage) {
+	static getKey(msg: EventMessage): string {
 		return `${msg.ts.toMillis()}-${msg.id}`;
 	}
 }

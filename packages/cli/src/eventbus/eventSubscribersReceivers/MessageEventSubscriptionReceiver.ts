@@ -1,6 +1,15 @@
+import { EventMessage } from 'posthog-node';
 import { spawn, Worker, Thread, ModuleThread } from 'threads';
-// import { EventSubscriberWorker } from './ConsoleEventSuscriptionReceiverWorker';
-import { EventSubscriberWorker } from './ConsoleEventSuscriptionReceiver';
+import { EventMessageDeserialized } from '../classes/EventMessage';
+
+// const eventSubscriberWorkerTemplate = {
+// 	receive(msg: unknown) {},
+// };
+// export type EventSubscriberWorker = typeof eventSubscriberWorkerTemplate;
+export type EventSubscriberWorker = {
+	receive(msg: unknown): void;
+	communicate(msg: string, param: unknown): void;
+};
 
 export class MessageEventSubscriptionReceiver {
 	name: string;
