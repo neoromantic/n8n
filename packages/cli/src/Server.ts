@@ -153,9 +153,14 @@ import glob from 'fast-glob';
 import { ResponseError } from './ResponseHelper';
 
 import { toHttpNodeParameters } from './CurlConverterHelper';
-import { messageBufferInstance } from './MessageBus/MessageBuffer';
-import { EventMessage } from './MessageBus/EventMessage';
-import { EventMessageEventGroup } from './MessageBus/types/eventMessageTypes';
+import { eventBus } from './eventbus/classes/MessageEventBus';
+import { EventMessage } from './eventbus/classes/EventMessage';
+import { MessageBufferLevelDbWriter } from './eventbus/bufferWriters/levelDbWriter';
+import { MessageForwarderToLocalBroker } from './eventbus/messageForwarder/MessageForwarderToLocalBroker';
+import { EventMessageNames } from './eventbus/types/eventMessageTypes';
+import { MessageEventSubscriptionReceiver } from './eventbus/eventSubscribersReceivers/MessageEventSubscriptionReceiver';
+import { MessageEventSubscriptionSet } from './eventbus/classes/MessageEventSubscriptionSet';
+import { ConsoleEventSuscriptionReceiver } from './eventbus/eventSubscribersReceivers/ConsoleEventSuscriptionReceiver';
 
 require('body-parser-xml')(bodyParser);
 
@@ -1665,33 +1670,88 @@ class App {
 		// ----------------------------------------
 		// MessageBuffer TESTING
 		// ----------------------------------------
+
+		const subscriptionSetCore = new MessageEventSubscriptionSet({
+			name: 'core',
+			eventGroups: ['n8n.core'],
+			eventNames: [],
+		});
+		const subscriptionSetCustom = new MessageEventSubscriptionSet({
+			name: 'custom',
+			eventGroups: ['n8n.ui'],
+			eventNames: [
+				'n8n.core.burning',
+				'n8n.core.eventBusInitialized',
+				'n8n.ui.bunti',
+				'n8n.ui.clicki',
+			],
+		});
+		const consoleReceiver = new ConsoleEventSuscriptionReceiver();
+		const localBrokerForwarder = new MessageForwarderToLocalBroker();
+		await localBrokerForwarder.addReceiver(consoleReceiver);
+		localBrokerForwarder.addSubscription(consoleReceiver, [
+			subscriptionSetCore,
+			subscriptionSetCustom,
+		]);
+		const levelDbWriter = new MessageBufferLevelDbWriter();
+		await eventBus.initialize({
+			immediateWriters: [levelDbWriter],
+			forwarders: [localBrokerForwarder],
+		});
+
 		this.app.post(
 			`/${this.restEndpoint}/messagebuffer/add/msg`,
 			ResponseHelper.send(async (req: express.Request, res: express.Response): Promise<any> => {
-				const json = req.params;
-				const msg = new EventMessage({
-					eventGroup: req.params.eventGroup as EventMessageEventGroup,
-					eventName: req.params.eventName,
-				});
-				return messageBufferInstance.publishEvent(msg);
+				const eventName = req.body.eventName as EventMessageNames;
+				if (eventName) {
+					const msg = new EventMessage({
+						eventName,
+						level: 'debug',
+						severity: 'normal',
+					});
+					return eventBus.send(msg);
+				} else {
+					return 'not a valid eventName';
+				}
 			}),
 		);
-		this.app.get(
-			`/${this.restEndpoint}/messagebuffer/get/all`,
+
+		this.app.post(
+			`/${this.restEndpoint}/messagebuffer/add/load`,
 			ResponseHelper.send(async (req: express.Request, res: express.Response): Promise<any> => {
-				return messageBufferInstance.getEvents();
+				const eventName = req.body.eventName as EventMessageNames;
+				if (eventName) {
+					const msg = new EventMessage<number>({
+						eventName,
+						level: 'debug',
+						severity: 'normal',
+					});
+					for (let i = 0; i < 1000; i++) {
+						msg.payload = i;
+						await eventBus.send(msg);
+					}
+					return 'sent 1000';
+				} else {
+					return 'not a valid eventName';
+				}
 			}),
 		);
+		// this.app.get(
+		// 	`/${this.restEndpoint}/messagebuffer/get/all`,
+		// 	ResponseHelper.send(async (req: express.Request, res: express.Response): Promise<any> => {
+		// 		return eventBus.getEvents();
+		// 	}),
+		// );
 		this.app.get(
 			`/${this.restEndpoint}/messagebuffer/get/sent`,
 			ResponseHelper.send(async (req: express.Request, res: express.Response): Promise<any> => {
-				return messageBufferInstance.getEventsSent();
+				return eventBus.getEventsSent();
 			}),
 		);
 		this.app.get(
 			`/${this.restEndpoint}/messagebuffer/get/unsent`,
 			ResponseHelper.send(async (req: express.Request, res: express.Response): Promise<any> => {
-				return messageBufferInstance.getEventsUnsent();
+				return eventBus.getEventsUnsent();
 			}),
 		);
 
