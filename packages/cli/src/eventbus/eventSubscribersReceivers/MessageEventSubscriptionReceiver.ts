@@ -26,6 +26,7 @@ export class MessageEventSubscriptionReceiver {
 	async launchThread() {
 		this.worker = await spawn<EventSubscriberWorker>(new Worker(this.workerFile));
 		Thread.events(this.worker).subscribe((event) => console.debug('Thread event:', event));
+		return this.worker;
 	}
 
 	async terminateThread() {

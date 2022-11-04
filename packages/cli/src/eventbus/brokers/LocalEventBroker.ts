@@ -58,7 +58,8 @@ export class LocalEventBroker {
 			await this.terminateReceiver(newReceiver.name);
 		}
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		newReceiver.worker = await spawn<EventSubscriberWorker>(new Worker(newReceiver.workerFile));
+		// newReceiver.worker = await spawn<EventSubscriberWorker>(new Worker(newReceiver.workerFile));
+		newReceiver.worker = await newReceiver.launchThread();
 		this.#subscribers[newReceiver.name] = {
 			receiver: newReceiver,
 			subscriptions: subscriptionSets ?? [],

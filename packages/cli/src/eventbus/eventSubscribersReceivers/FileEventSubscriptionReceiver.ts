@@ -10,20 +10,31 @@ import { MessageEventSubscriptionReceiver } from './MessageEventSubscriptionRece
 // * This part runs in the Worker Thread ! *
 // -----------------------------------------
 
-let MAKE_ME_CONFIGURABLE = join(UserSettings.getUserN8nFolderPath(), 'event_log.txt');
+let LOG_FILE_NAME = '';
+let PAUSED = true;
 
 const fileEventSubscriberWorker = {
 	receive(msg: unknown) {
+		if (PAUSED) {
+			return;
+		}
+
 		if (isEventMessageDeserialized(msg)) {
-			appendFileSync(MAKE_ME_CONFIGURABLE, JSON.stringify(msg) + '\n');
+			appendFileSync(LOG_FILE_NAME, JSON.stringify(msg) + '\n');
 		}
 	},
 	communicate(msg: string, param: unknown) {
 		switch (msg) {
 			case 'setFileName': {
 				if (typeof param === 'string') {
-					MAKE_ME_CONFIGURABLE = param;
+					LOG_FILE_NAME = param;
 				}
+			}
+			case 'pause': {
+				PAUSED = true;
+			}
+			case 'start': {
+				PAUSED = false;
 			}
 		}
 	},
@@ -38,10 +49,28 @@ if (isWorkerRuntime()) {
 // ---------------------------------------
 
 export class FileEventSubscriptionReceiver extends MessageEventSubscriptionReceiver {
-	constructor(name = 'FileEventSuscriptionReceiver') {
+	logFileName;
+
+	constructor(props?: { name?: string; fileName?: string }) {
 		super({
-			name,
+			name: props?.name ?? 'FileEventSubscriptionReceiver',
 			workerFile: `../eventSubscribersReceivers/${parse(__filename).name}`,
 		});
+		if (props?.fileName) {
+			if (!parse(props.fileName).dir) {
+				this.logFileName = join(UserSettings.getUserN8nFolderPath(), props.fileName);
+			} else {
+				this.logFileName = props.fileName;
+			}
+		} else {
+			this.logFileName = join(UserSettings.getUserN8nFolderPath(), 'event_log.txt');
+		}
+	}
+
+	override async launchThread() {
+		this.worker = await super.launchThread();
+		await this.worker?.communicate('setFileName', this.logFileName);
+		await this.worker?.communicate('start', undefined);
+		return this.worker;
 	}
 }

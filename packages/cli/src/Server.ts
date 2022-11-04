@@ -1678,28 +1678,29 @@ class App {
 			eventNames: [],
 		});
 		const subscriptionSetCustom = new MessageEventSubscriptionSet({
-			name: 'custom',
+			name: 'ui',
 			eventGroups: ['n8n.ui'],
-			eventNames: [
-				'n8n.core.burning',
-				'n8n.core.eventBusInitialized',
-				'n8n.ui.bunti',
-				'n8n.ui.clicki',
-			],
+			eventNames: ['n8n.workflow.workflowStarted'],
 		});
 		const consoleReceiver = new ConsoleEventSubscriptionReceiver();
-		const fileReceiver = new FileEventSubscriptionReceiver();
+		const fileReceiverCore = new FileEventSubscriptionReceiver({
+			name: 'coreEventsFileLogger',
+			fileName: 'events_core.txt',
+		});
+		const fileReceiverUi = new FileEventSubscriptionReceiver({
+			name: 'uiEventsFileLogger',
+			fileName: 'events_ui.txt',
+		});
 		const localBrokerForwarder = new MessageForwarderToLocalBroker();
 		await localBrokerForwarder.addReceiver(consoleReceiver);
 		localBrokerForwarder.addSubscription(consoleReceiver, [
 			subscriptionSetCore,
 			subscriptionSetCustom,
 		]);
-		await localBrokerForwarder.addReceiver(fileReceiver);
-		localBrokerForwarder.addSubscription(fileReceiver, [
-			subscriptionSetCore,
-			subscriptionSetCustom,
-		]);
+		await localBrokerForwarder.addReceiver(fileReceiverCore);
+		localBrokerForwarder.addSubscription(fileReceiverCore, [subscriptionSetCore]);
+		await localBrokerForwarder.addReceiver(fileReceiverUi);
+		localBrokerForwarder.addSubscription(fileReceiverUi, [subscriptionSetCustom]);
 		await eventBus.initialize({
 			immediateWriters: [new MessageBufferLevelDbWriter()],
 			forwarders: [localBrokerForwarder],
