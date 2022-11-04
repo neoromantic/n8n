@@ -87,6 +87,8 @@ importers:
       '@oclif/dev-cli': ^1.22.2
       '@oclif/errors': ^1.3.6
       '@rudderstack/rudder-sdk-node': 1.0.6
+      '@sentry/integrations': ^7.17.3
+      '@sentry/node': ^7.17.3
       '@types/basic-auth': ^1.1.2
       '@types/bcryptjs': ^2.4.2
       '@types/bull': ^3.3.10
@@ -157,10 +159,10 @@ importers:
       lodash.split: ^4.4.2
       lodash.unset: ^4.5.2
       mysql2: ~2.3.0
-      n8n-core: ~0.140.1
-      n8n-editor-ui: ~0.166.1
-      n8n-nodes-base: ~0.198.1
-      n8n-workflow: ~0.122.1
+      n8n-core: ~0.141.0
+      n8n-editor-ui: ~0.167.0
+      n8n-nodes-base: ~0.199.0
+      n8n-workflow: ~0.123.0
       nodemailer: ^6.7.1
       nodemon: ^2.0.2
       oauth-1.0a: ^2.2.6
@@ -189,6 +191,8 @@ importers:
       '@oclif/core': 1.16.6
       '@oclif/errors': 1.3.6
       '@rudderstack/rudder-sdk-node': 1.0.6
+      '@sentry/integrations': 7.17.4
+      '@sentry/node': 7.17.4
       axios: 0.21.4
       basic-auth: 2.0.1
       bcryptjs: 2.4.3
@@ -308,7 +312,7 @@ importers:
       form-data: ^4.0.0
       lodash.get: ^4.4.2
       mime-types: ^2.1.27
-      n8n-workflow: ~0.122.1
+      n8n-workflow: ~0.123.0
       oauth-1.0a: ^2.2.6
       p-cancelable: ^2.0.0
       qs: ^6.10.1
@@ -479,9 +483,10 @@ importers:
       lodash.set: ^4.3.2
       luxon: ^2.3.0
       monaco-editor: ^0.33.0
-      n8n-design-system: ~0.40.0
-      n8n-workflow: ~0.122.1
+      n8n-design-system: ~0.41.0
+      n8n-workflow: ~0.123.0
       normalize-wheel: ^1.0.1
+      pinia: ^2.0.22
       prismjs: ^1.17.1
       quill: 2.0.0-dev.4
       quill-autoformat: ^0.1.1
@@ -544,6 +549,7 @@ importers:
       n8n-design-system: link:../design-system
       n8n-workflow: link:../workflow
       normalize-wheel: 1.0.1
+      pinia: 2.0.23_xjcbg5znturqejtkpd33hx726m
       prismjs: 1.29.0
       quill: 2.0.0-dev.4_wzpqp2wkmsfkgdbvlakyt3wndy
       quill-autoformat: 0.1.2
@@ -607,8 +613,8 @@ importers:
       change-case: ^4.1.1
       fast-glob: ^3.2.5
       inquirer: ^7.0.1
-      n8n-core: ~0.140.1
-      n8n-workflow: ~0.122.1
+      n8n-core: ~0.141.0
+      n8n-workflow: ~0.123.0
       oauth-1.0a: ^2.2.6
       replace-in-file: ^6.0.0
       request: ^2.88.2
@@ -698,8 +704,8 @@ importers:
       mqtt: 4.2.6
       mssql: ^8.1.2
       mysql2: ~2.3.0
-      n8n-core: ~0.140.1
-      n8n-workflow: ~0.122.1
+      n8n-core: ~0.141.0
+      n8n-workflow: ~0.123.0
       node-html-markdown: ^1.1.3
       node-ssh: ^12.0.0
       nodemailer: ^6.7.1
@@ -3561,6 +3567,53 @@ packages:
       selderee: 0.6.0
     dev: false
 
+  /@sentry/core/7.17.4:
+    resolution: {integrity: sha512-U3ABSJBKGK8dJ01nEG2+qNOb6Wv7U3VqoajiZxfV4lpPWNFGCoEhiTytxBlFTOCmdUH8209zSZiWJZaDLy+TSA==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.17.4
+      '@sentry/utils': 7.17.4
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/integrations/7.17.4:
+    resolution: {integrity: sha512-9vL0RRLuMnj0mj61THgRhDUCgTGYbRoCT6HmLGrErHjyTG3d7lUgUwTBQPgw9qYLss1uLKoEtRvcxgtW7ef0BA==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.17.4
+      '@sentry/utils': 7.17.4
+      localforage: 1.10.0
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/node/7.17.4:
+    resolution: {integrity: sha512-cR+Gsir9c/tzFWxvk4zXkMQy6tNRHEYixHrb88XIjZVYDqDS9l2/bKs5nJusdmaUeLtmPp5Et2o7RJyS7gvKTQ==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/core': 7.17.4
+      '@sentry/types': 7.17.4
+      '@sentry/utils': 7.17.4
+      cookie: 0.4.2
+      https-proxy-agent: 5.0.1
+      lru_map: 0.3.3
+      tslib: 1.14.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@sentry/types/7.17.4:
+    resolution: {integrity: sha512-QJj8vO4AtxuzQfJIzDnECSmoxwnS+WJsm1Ta2Cwdy+TUCBJyWpW7aIJJGta76zb9gNPGb3UcAbeEjhMJBJeRMQ==}
+    engines: {node: '>=8'}
+    dev: false
+
+  /@sentry/utils/7.17.4:
+    resolution: {integrity: sha512-ioG0ANy8uiWzig82/e7cc+6C9UOxkyBzJDi1luoQVDH6P0/PvM8GzVU+1iUVUipf8+OL1Jh09GrWnd5wLm3XNQ==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.17.4
+      tslib: 1.14.1
+    dev: false
+
   /@servie/events/1.0.0:
     resolution: {integrity: sha512-sBSO19KzdrJCM3gdx6eIxV8M9Gxfgg6iDQmH5TIAGaUu+X9VDdsINXJOnoiZ1Kx3TrHdH4bt5UVglkjsEGBcvw==}
     dev: false
@@ -6379,6 +6432,10 @@ packages:
       - walrus
       - whiskers
     dev: true
+
+  /@vue/devtools-api/6.4.5:
+    resolution: {integrity: sha512-JD5fcdIuFxU4fQyXUu3w2KpAJHzTVdN+p4iOX2lMWSHMOoQdMAcpFLZzm9Z/2nmsoZ1a96QEhZ26e50xLBsgOQ==}
+    dev: false
 
   /@vue/eslint-config-typescript/8.0.0_6xarzu52dofcmnfmk2lim76frm:
     resolution: {integrity: sha512-8u8Qpg4qfjJoNeRMdHlxif9BcGy4iYSSK4YYW5AFPPRtkBJiCqtoyT72l4F3ZeZII09ax2N6yQeHbQ0CXQi1bA==}
@@ -12608,6 +12665,10 @@ packages:
       utf7: 1.0.2
     dev: false
 
+  /immediate/3.0.6:
+    resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
+    dev: false
+
   /immutable/4.1.0:
     resolution: {integrity: sha512-oNkuqVTA8jqG1Q6c+UglTOD1xhC1BtjKI7XkCXRkZHrN5m18/XsnUp8Q89GkQO/z+0WjonSvl0FLhDYftp46nQ==}
     dev: true
@@ -14293,6 +14354,12 @@ packages:
     resolution: {integrity: sha512-4Rgfa0hZpG++t1Vi2IiqXG9Ad1ig4QTmtuZF946QJP4bPqOYC78ixUXgz5TW/wE7lNaNKlplSYTxQ+fR2KZ0EA==}
     dev: false
 
+  /lie/3.1.1:
+    resolution: {integrity: sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw==}
+    dependencies:
+      immediate: 3.0.6
+    dev: false
+
   /liftoff/3.1.0:
     resolution: {integrity: sha512-DlIPlJUkCV0Ips2zf2pJP0unEoT1kwYhiiPUGF3s/jtxTCjziNLoiVVh+jqWOWeFi6mmwQ5fNxvAUyPad4Dfog==}
     engines: {node: '>= 0.8'}
@@ -14403,6 +14470,12 @@ packages:
     resolution: {integrity: sha512-mlERgSPrbxU3BP4qBqAvvwlgW4MTg78iwJdGGnv7kibKjWcJksrG3t6LB5lXI93wXRDvG4NpUgJFmTG4T6rdrg==}
     engines: {node: '>=14'}
     dev: true
+
+  /localforage/1.10.0:
+    resolution: {integrity: sha512-14/H1aX7hzBBmmh7sGPd+AOMkkIrHM3Z1PAyGgZigA1H1p5O5ANnMyWzvpAETtG68/dC4pC0ncy3+PPGzXZHPg==}
+    dependencies:
+      lie: 3.1.1
+    dev: false
 
   /localtunnel/2.0.2:
     resolution: {integrity: sha512-n418Cn5ynvJd7m/N1d9WVJISLJF/ellZnfsLnx8WBWGzxv/ntNcFkJ1o6se5quUhCplfLGBNL5tYHiq5WF3Nug==}
@@ -14626,6 +14699,10 @@ packages:
     dependencies:
       lodash.clonedeep: 4.5.0
       lru-cache: 4.0.2
+    dev: false
+
+  /lru_map/0.3.3:
+    resolution: {integrity: sha512-Pn9cox5CsMYngeDbmChANltQl+5pi6XmTrraMSzhPmMBbmgcxmqWry0U3PGapCU1yB4/LqCcom7qhHZiF/jGfQ==}
     dev: false
 
   /luxon/2.3.2:
@@ -16446,6 +16523,24 @@ packages:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
     dev: true
+
+  /pinia/2.0.23_xjcbg5znturqejtkpd33hx726m:
+    resolution: {integrity: sha512-N15hFf4o5STrxpNrib1IEb1GOArvPYf1zPvQVRGOO1G1d74Ak0J0lVyalX/SmrzdT4Q0nlEFjbURsmBmIGUR5Q==}
+    peerDependencies:
+      '@vue/composition-api': ^1.4.0
+      typescript: '>=4.4.4'
+      vue: ^2.6.14 || ^3.2.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@vue/devtools-api': 6.4.5
+      typescript: 4.8.4
+      vue: 2.7.13
+      vue-demi: 0.13.11_vue@2.7.13
+    dev: false
 
   /pinkie-promise/2.0.1:
     resolution: {integrity: sha512-0Gni6D4UcLTbv9c57DfxDGdr41XfgUjqWZu492f0cIGr16zDU06BWP/RAEvOuo7CQ0CNjHaLlM59YJJFm3NWlw==}
@@ -20054,7 +20149,6 @@ packages:
     resolution: {integrity: sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /uc.micro/1.0.6:
     resolution: {integrity: sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==}
@@ -20788,6 +20882,20 @@ packages:
       lodash.throttle: 4.1.1
       material-colors: 1.2.6
       tinycolor2: 1.4.2
+    dev: false
+
+  /vue-demi/0.13.11_vue@2.7.13:
+    resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
+    engines: {node: '>=12'}
+    hasBin: true
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^3.0.0-0 || ^2.6.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 2.7.13
     dev: false
 
   /vue-docgen-api/4.52.0_vue@2.7.13:
